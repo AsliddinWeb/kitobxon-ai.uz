@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - Kitobxon AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center gap-2 text-sm">
+            <li><a href="{% url 'books:home' %}" class="text-slate-500 hover:text-primary">Bosh sahifa</a></li>
+            <li><span class="text-slate-400">/</span></li>
+            <li><a href="{% url 'books:categories' %}" class="text-slate-500 hover:text-primary">Kategoriyalar</a></li>
+            <li><span class="text-slate-400">/</span></li>
+            <li class="text-slate-800 font-medium">{{ category.name }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary to-emerald-600 rounded-2xl p-8 mb-8 text-white">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-4xl">
+                {{ category.icon|default:"📚" }}
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold">{{ category.name }}</h1>
+                <p class="text-emerald-100 mt-1">{{ books|length }} ta kitob</p>
+            </div>
+        </div>
+        {% if category.description %}
+        <p class="mt-4 text-emerald-50 max-w-2xl">{{ category.description }}</p>
+        {% endif %}
+    </div>
+    
+    <!-- Books Grid -->
+    {% if books %}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for book in books %}
+        <a href="{% url 'books:detail' book.slug %}" class="group">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 border border-slate-200">
+                <div class="aspect-[3/4] relative overflow-hidden">
+                    {% if book.cover %}
+                    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-5">
+                    <h3 class="font-semibold text-slate-800 group-hover:text-primary transition line-clamp-2 mb-2">
+                        {{ book.title }}
+                    </h3>
+                    <p class="text-sm text-slate-500 mb-3">{{ book.author.name }}</p>
+                    
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            {{ book.views }}
+                        </span>
+                        <span>{{ book.pages }} sahifa</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16">
+        <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-slate-800 mb-2">Bu kategoriyada kitob yo'q</h3>
+        <p class="text-slate-600 mb-6">Boshqa kategoriyalarni ko'ring</p>
+        <a href="{% url 'books:categories' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-emerald-700 text-white font-medium rounded-xl transition">
+            Kategoriyalar
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

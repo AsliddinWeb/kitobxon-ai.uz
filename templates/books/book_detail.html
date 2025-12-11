@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} - Kitobxon AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center gap-2 text-sm">
+            <li><a href="{% url 'books:home' %}" class="text-slate-500 hover:text-primary">Bosh sahifa</a></li>
+            <li><span class="text-slate-400">/</span></li>
+            <li><a href="{% url 'books:list' %}" class="text-slate-500 hover:text-primary">Kitoblar</a></li>
+            <li><span class="text-slate-400">/</span></li>
+            <li class="text-slate-800 font-medium">{{ book.title|truncatewords:5 }}</li>
+        </ol>
+    </nav>
+    
+    <div class="grid lg:grid-cols-3 gap-8">
+        
+        <!-- Left Column - Book Cover -->
+        <div class="lg:col-span-1">
+            <div class="sticky top-24">
+                <div class="aspect-[3/4] rounded-2xl overflow-hidden shadow-xl">
+                    {% if book.cover %}
+                    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
+                        <svg class="w-24 h-24 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-3 mt-4">
+                    <div class="bg-slate-100 rounded-xl p-3 text-center">
+                        <div class="text-lg font-bold text-slate-800">{{ book.pages }}</div>
+                        <div class="text-xs text-slate-500">Sahifa</div>
+                    </div>
+                    <div class="bg-slate-100 rounded-xl p-3 text-center">
+                        <div class="text-lg font-bold text-slate-800">{{ book.views }}</div>
+                        <div class="text-xs text-slate-500">Ko'rildi</div>
+                    </div>
+                    <div class="bg-slate-100 rounded-xl p-3 text-center">
+                        <div class="text-lg font-bold text-slate-800">{{ book.published_year|default:"-" }}</div>
+                        <div class="text-xs text-slate-500">Yil</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Book Info -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Title & Author -->
+            <div>
+                {% if book.category %}
+                <a href="{% url 'books:category_detail' book.category.slug %}" class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-medium rounded-full mb-3 hover:bg-emerald-200 transition">
+                    {{ book.category.icon }} {{ book.category.name }}
+                </a>
+                {% endif %}
+                
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-800 mb-3">{{ book.title }}</h1>
+                
+                <a href="{% url 'books:author_detail' book.author.slug %}" class="inline-flex items-center gap-2 text-slate-600 hover:text-primary transition">
+                    <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <span class="font-medium">{{ book.author.name }}</span>
+                </a>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-3">
+                {% if user.is_authenticated %}
+
+                <!-- Reading Progress Card -->
+                <div class="w-full bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 p-4 mb-2">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium text-emerald-800">O'qish progressi</span>
+                        <span class="text-sm text-emerald-600" id="progress-text">
+                            {% if reading_session %}
+                                {{ reading_session.current_page }}/{{ book.pages }} sahifa
+                            {% else %}
+                                0/{{ book.pages }} sahifa
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="h-2 bg-emerald-200 rounded-full overflow-hidden mb-3">
+                        <div class="h-full bg-emerald-500 rounded-full transition-all" id="progress-bar"
+                             style="width: {% if reading_session %}{{ reading_session.progress_percentage }}{% else %}0{% endif %}%"></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="current-page"
+                               value="{% if reading_session %}{{ reading_session.current_page }}{% else %}0{% endif %}"
+                               min="0" max="{{ book.pages }}"
+                               class="w-20 px-3 py-2 text-sm border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                               placeholder="Sahifa">
+                        <button onclick="updateProgress()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition">
+                            Saqlash
+                        </button>
+                        {% if reading_session.completed %}
+                        <span class="ml-auto px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-medium rounded-full">
+                            ✅ Tugatilgan
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <a href="{% url 'ai_chat:chat' book.slug %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-emerald-700 text-white font-semibold rounded-xl transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    AI bilan suhbat
+                </a>
+                <a href="{% url 'summarizer:summary' book.slug %}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Summary
+                </a>
+                <a href="{% url 'quiz:start' book.slug %}" class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    Test yechish
+                </a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-emerald-700 text-white font-semibold rounded-xl transition">
+                    Kirish va boshlash
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Kitob haqida</h2>
+                <div class="prose prose-slate max-w-none">
+                    <p class="text-slate-600 leading-relaxed">{{ book.description }}</p>
+                </div>
+            </div>
+
+            <!-- Book Details -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Tafsilotlar</h2>
+                <dl class="grid grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm text-slate-500">Muallif</dt>
+                        <dd class="font-medium text-slate-800">{{ book.author.name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Kategoriya</dt>
+                        <dd class="font-medium text-slate-800">{{ book.category.name|default:"-" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Til</dt>
+                        <dd class="font-medium text-slate-800">{{ book.get_language_display }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Sahifalar</dt>
+                        <dd class="font-medium text-slate-800">{{ book.pages }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Nashr yili</dt>
+                        <dd class="font-medium text-slate-800">{{ book.published_year|default:"-" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-slate-500">Ko'rishlar</dt>
+                        <dd class="font-medium text-slate-800">{{ book.views }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Books -->
+    {% if related_books %}
+    <section class="mt-16">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6">O'xshash kitoblar</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for book in related_books %}
+            <a href="{% url 'books:detail' book.slug %}" class="group">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition border border-slate-200">
+                    <div class="aspect-[3/4] relative overflow-hidden">
+                        {% if book.cover %}
+                        <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="w-full h-full object-cover group-hover:scale-105 transition">
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium text-slate-800 group-hover:text-primary transition line-clamp-2">{{ book.title }}</h3>
+                        <p class="text-sm text-slate-500 mt-1">{{ book.author.name }}</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if user.is_authenticated %}
+<script>
+const bookId = {{ book.id }};
+const totalPages = {{ book.pages }};
+const csrfToken = '{{ csrf_token }}';
+
+async function updateProgress() {
+    const currentPage = parseInt(document.getElementById('current-page').value) || 0;
+
+    if (currentPage < 0 || currentPage > totalPages) {
+        alert('Noto\'g\'ri sahifa raqami');
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('book_id', bookId);
+        formData.append('current_page', currentPage);
+
+        const response = await fetch('{% url "tracker:update_progress" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update UI
+            document.getElementById('progress-bar').style.width = data.progress + '%';
+            document.getElementById('progress-text').textContent = currentPage + '/' + totalPages + ' sahifa';
+
+            if (currentPage >= totalPages) {
+                alert('🎉 Tabriklaymiz! Kitobni tugatdingiz!');
+                location.reload();
+            }
+        }
+    } catch (error) {
+        alert('Xatolik yuz berdi');
+    }
+}
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Test yechish - {{ quiz.book.title }} | Kitobxon AI{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Progress Bar -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between text-sm mb-2">
+            <span class="font-medium text-slate-700">{{ quiz.book.title }}</span>
+            <span class="text-slate-500">{{ questions|length }} ta savol</span>
+        </div>
+        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div class="h-full bg-amber-500 rounded-full" style="width: 0%" id="progress-bar"></div>
+        </div>
+    </div>
+    
+    <!-- Quiz Form -->
+    <form method="POST" id="quiz-form">
+        {% csrf_token %}
+        
+        {% for question in questions %}
+        <div class="question-card bg-white rounded-2xl border border-slate-200 p-6 md:p-8 mb-6 {% if not forloop.first %}hidden{% endif %}" data-question="{{ forloop.counter }}">
+            
+            <!-- Question Header -->
+            <div class="flex items-center justify-between mb-6">
+                <span class="px-3 py-1 bg-amber-100 text-amber-700 text-sm font-medium rounded-full">
+                    Savol {{ forloop.counter }}/{{ questions|length }}
+                </span>
+            </div>
+            
+            <!-- Question Text -->
+            <h2 class="text-xl font-semibold text-slate-800 mb-6">{{ question.question_text }}</h2>
+            
+            <!-- Options -->
+            <div class="space-y-3">
+                <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-amber-300 hover:bg-amber-50 transition group">
+                    <input type="radio" name="question_{{ question.id }}" value="0" class="w-5 h-5 text-amber-500 focus:ring-amber-500" required>
+                    <span class="flex items-center justify-center w-8 h-8 bg-slate-100 group-hover:bg-amber-200 text-slate-600 group-hover:text-amber-700 font-medium rounded-lg transition">A</span>
+                    <span class="flex-1 text-slate-700">{{ question.option_a }}</span>
+                </label>
+                
+                <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-amber-300 hover:bg-amber-50 transition group">
+                    <input type="radio" name="question_{{ question.id }}" value="1" class="w-5 h-5 text-amber-500 focus:ring-amber-500">
+                    <span class="flex items-center justify-center w-8 h-8 bg-slate-100 group-hover:bg-amber-200 text-slate-600 group-hover:text-amber-700 font-medium rounded-lg transition">B</span>
+                    <span class="flex-1 text-slate-700">{{ question.option_b }}</span>
+                </label>
+                
+                <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-amber-300 hover:bg-amber-50 transition group">
+                    <input type="radio" name="question_{{ question.id }}" value="2" class="w-5 h-5 text-amber-500 focus:ring-amber-500">
+                    <span class="flex items-center justify-center w-8 h-8 bg-slate-100 group-hover:bg-amber-200 text-slate-600 group-hover:text-amber-700 font-medium rounded-lg transition">C</span>
+                    <span class="flex-1 text-slate-700">{{ question.option_c }}</span>
+                </label>
+                
+                <label class="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-amber-300 hover:bg-amber-50 transition group">
+                    <input type="radio" name="question_{{ question.id }}" value="3" class="w-5 h-5 text-amber-500 focus:ring-amber-500">
+                    <span class="flex items-center justify-center w-8 h-8 bg-slate-100 group-hover:bg-amber-200 text-slate-600 group-hover:text-amber-700 font-medium rounded-lg transition">D</span>
+                    <span class="flex-1 text-slate-700">{{ question.option_d }}</span>
+                </label>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Navigation Buttons -->
+        <div class="flex items-center justify-between">
+            <button 
+                type="button" 
+                id="prev-btn"
+                onclick="prevQuestion()"
+                class="hidden px-6 py-3 border border-slate-300 hover:border-slate-400 text-slate-700 font-medium rounded-xl transition"
+            >
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Oldingi
+                </span>
+            </button>
+            
+            <div class="flex-1"></div>
+            
+            <button 
+                type="button" 
+                id="next-btn"
+                onclick="nextQuestion()"
+                class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-xl transition"
+            >
+                <span class="flex items-center gap-2">
+                    Keyingi
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </span>
+            </button>
+            
+            <button 
+                type="submit" 
+                id="submit-btn"
+                class="hidden px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition"
+            >
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Yakunlash
+                </span>
+            </button>
+        </div>
+    </form>
+    
+    <!-- Question Indicators -->
+    <div class="mt-8 flex items-center justify-center gap-2">
+        {% for question in questions %}
+        <button 
+            onclick="goToQuestion({{ forloop.counter }})"
+            class="question-indicator w-8 h-8 rounded-full border-2 text-sm font-medium transition {% if forloop.first %}border-amber-500 bg-amber-500 text-white{% else %}border-slate-300 text-slate-500 hover:border-amber-300{% endif %}"
+            data-question="{{ forloop.counter }}"
+        >
+            {{ forloop.counter }}
+        </button>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const totalQuestions = {{ questions|length }};
+    let currentQuestion = 1;
+    
+    function updateUI() {
+        // Hide all questions
+        document.querySelectorAll('.question-card').forEach(card => {
+            card.classList.add('hidden');
+        });
+        
+        // Show current question
+        document.querySelector(`.question-card[data-question="${currentQuestion}"]`).classList.remove('hidden');
+        
+        // Update progress bar
+        const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+        
+        // Update buttons
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        if (currentQuestion === 1) {
+            prevBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+        }
+        
+        if (currentQuestion === totalQuestions) {
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        } else {
+            nextBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+        }
+        
+        // Update indicators
+        document.querySelectorAll('.question-indicator').forEach(indicator => {
+            const q = parseInt(indicator.dataset.question);
+            indicator.classList.remove('border-amber-500', 'bg-amber-500', 'text-white');
+            indicator.classList.add('border-slate-300', 'text-slate-500');
+            
+            if (q === currentQuestion) {
+                indicator.classList.remove('border-slate-300', 'text-slate-500');
+                indicator.classList.add('border-amber-500', 'bg-amber-500', 'text-white');
+            }
+            
+            // Check if answered
+            const card = document.querySelector(`.question-card[data-question="${q}"]`);
+            const answered = card.querySelector('input[type="radio"]:checked');
+            if (answered && q !== currentQuestion) {
+                indicator.classList.remove('border-slate-300');
+                indicator.classList.add('border-emerald-500', 'bg-emerald-100', 'text-emerald-700');
+            }
+        });
+    }
+    
+    function nextQuestion() {
+        // Check if current question is answered
+        const currentCard = document.querySelector(`.question-card[data-question="${currentQuestion}"]`);
+        const answered = currentCard.querySelector('input[type="radio"]:checked');
+        
+        if (!answered) {
+            alert('Iltimos, javobni tanlang');
+            return;
+        }
+        
+        if (currentQuestion < totalQuestions) {
+            currentQuestion++;
+            updateUI();
+        }
+    }
+    
+    function prevQuestion() {
+        if (currentQuestion > 1) {
+            currentQuestion--;
+            updateUI();
+        }
+    }
+    
+    function goToQuestion(num) {
+        currentQuestion = num;
+        updateUI();
+    }
+    
+    // Form submit validation
+    document.getElementById('quiz-form').addEventListener('submit', function(e) {
+        let allAnswered = true;
+        
+        for (let i = 1; i <= totalQuestions; i++) {
+            const card = document.querySelector(`.question-card[data-question="${i}"]`);
+            const answered = card.querySelector('input[type="radio"]:checked');
+            if (!answered) {
+                allAnswered = false;
+                break;
+            }
+        }
+        
+        if (!allAnswered) {
+            e.preventDefault();
+            alert('Iltimos, barcha savollarga javob bering');
+        }
+    });
+</script>
+{% endblock %}

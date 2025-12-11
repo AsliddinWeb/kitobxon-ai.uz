@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block title %}Test - {{ book.title }} | Kitobxon AI{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center gap-2 text-sm">
+            <li><a href="{% url 'books:home' %}" class="text-slate-500 hover:text-primary">Bosh sahifa</a></li>
+            <li><span class="text-slate-400">/</span></li>
+            <li><a href="{% url 'books:detail' book.slug %}" class="text-slate-500 hover:text-primary">{{ book.title|truncatewords:3 }}</a></li>
+            <li><span class="text-slate-400">/</span></li>
+            <li class="text-slate-800 font-medium">Test</li>
+        </ol>
+    </nav>
+    
+    <!-- Main Card -->
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-white">
+            <div class="flex items-start gap-5">
+                <div class="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 shadow-lg">
+                    {% if book.cover %}
+                    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-white/20 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-amber-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        <span class="text-amber-200 text-sm font-medium">Bilim testi</span>
+                    </div>
+                    <h1 class="text-2xl font-bold mb-1">{{ book.title }}</h1>
+                    <p class="text-amber-100">{{ book.author.name }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-6 md:p-8">
+            
+            {% if quiz %}
+            <!-- Quiz Exists -->
+            <div class="text-center">
+                <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Testga tayyormisiz?</h2>
+                <p class="text-slate-600 mb-8">
+                    Bu test {{ quiz.questions.count }} ta savoldan iborat. Har bir to'g'ri javob uchun 10 ball olasiz.
+                </p>
+                
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-4 max-w-sm mx-auto mb-8">
+                    <div class="bg-slate-50 rounded-xl p-4">
+                        <div class="text-2xl font-bold text-slate-800">{{ quiz.questions.count }}</div>
+                        <div class="text-xs text-slate-500">Savol</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-4">
+                        <div class="text-2xl font-bold text-slate-800">10</div>
+                        <div class="text-xs text-slate-500">Ball/savol</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-4">
+                        <div class="text-2xl font-bold text-slate-800">∞</div>
+                        <div class="text-xs text-slate-500">Vaqt</div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <a href="{% url 'quiz:take' quiz.id %}" class="inline-flex items-center gap-2 px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Testni boshlash
+                    </a>
+                    <button onclick="regenerateQuiz()" class="inline-flex items-center gap-2 px-6 py-3 border border-slate-300 hover:border-slate-400 text-slate-700 font-medium rounded-xl transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Yangi savollar
+                    </button>
+                </div>
+            </div>
+            
+            {% else %}
+            <!-- No Quiz - Generate -->
+            <div id="generate-section" class="text-center">
+                <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Test yaratish</h2>
+                <p class="text-slate-600 mb-8 max-w-md mx-auto">
+                    AI yordamida bu kitob asosida test savollarini yarating. Bilimingizni sinab ko'ring!
+                </p>
+                
+                <button 
+                    onclick="generateQuiz()"
+                    id="generate-btn"
+                    class="inline-flex items-center gap-2 px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Test yaratish
+                </button>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loading-section" class="hidden text-center">
+                <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-amber-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-2">Savollar yaratilmoqda...</h3>
+                <p class="text-slate-600">AI kitobni tahlil qilmoqda</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const csrfToken = '{{ csrf_token }}';
+    
+    async function generateQuiz() {
+        const generateSection = document.getElementById('generate-section');
+        const loadingSection = document.getElementById('loading-section');
+        
+        generateSection.classList.add('hidden');
+        loadingSection.classList.remove('hidden');
+        
+        try {
+            const response = await fetch('{% url "quiz:generate" book.slug %}', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = '{% url "quiz:take" 0 %}'.replace('0', data.quiz_id);
+            } else {
+                alert('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+                loadingSection.classList.add('hidden');
+                generateSection.classList.remove('hidden');
+            }
+        } catch (error) {
+            alert('Tarmoq xatosi. Internetni tekshiring.');
+            loadingSection.classList.add('hidden');
+            generateSection.classList.remove('hidden');
+        }
+    }
+    
+    async function regenerateQuiz() {
+        if (!confirm('Yangi savollar yaratilsinmi? Eski savollar o\'chib ketadi.')) return;
+        
+        try {
+            const response = await fetch('{% url "quiz:generate" book.slug %}', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = '{% url "quiz:take" 0 %}'.replace('0', data.quiz_id);
+            } else {
+                alert('Xatolik yuz berdi.');
+            }
+        } catch (error) {
+            alert('Tarmoq xatosi.');
+        }
+    }
+</script>
+{% endblock %}

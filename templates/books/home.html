@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}Kitobxon AI - Aqlli Kutubxona{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-20 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-emerald-500 rounded-full filter blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-full text-emerald-400 text-sm font-medium mb-6">
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                    AI Hackathon Kashkadarya 2025
+                </div>
+                
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
+                    AI yordamida
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                        kitob o'qing
+                    </span>
+                </h1>
+                
+                <p class="text-lg text-slate-300 mb-8 max-w-lg">
+                    Kitoblar bilan suhbatlashing, summary oling, test yeching va bilimingizni yangi bosqichga olib chiqing.
+                </p>
+                
+                <div class="flex flex-wrap gap-4">
+                    <a href="{% url 'books:list' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-emerald-600 text-white font-semibold rounded-xl transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        Kitoblarni ko'rish
+                    </a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'accounts:register' %}" class="inline-flex items-center gap-2 px-6 py-3 border border-slate-600 hover:border-slate-500 text-white font-semibold rounded-xl transition">
+                        Boshlash
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="hidden lg:block">
+                <div class="relative">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                                <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4">
+                                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold mb-1">AI Chat</h3>
+                                <p class="text-sm text-slate-400">Kitob bilan suhbatlashing</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+                                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold mb-1">Summary</h3>
+                                <p class="text-sm text-slate-400">Qisqa mazmun oling</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4 mt-8">
+                            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                                <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-4">
+                                    <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold mb-1">Quiz</h3>
+                                <p class="text-sm text-slate-400">Bilimingizni sinang</p>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                                <div class="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center mb-4">
+                                    <svg class="w-6 h-6 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold mb-1">Statistika</h3>
+                                <p class="text-sm text-slate-400">Progressni kuzating</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Qanday ishlaydi?</h2>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                3 ta oddiy qadamda AI yordamida kitob o'qishni boshlang
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition">
+                    <span class="text-2xl font-bold text-primary">1</span>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-3">Kitob tanlang</h3>
+                <p class="text-slate-600">
+                    Kutubxonadan o'zingizga yoqqan kitobni tanlang
+                </p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition">
+                    <span class="text-2xl font-bold text-primary">2</span>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-3">AI bilan suhbatlashing</h3>
+                <p class="text-slate-600">
+                    Kitob haqida savollar bering, summary oling
+                </p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition">
+                    <span class="text-2xl font-bold text-primary">3</span>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-3">Bilimni sinang</h3>
+                <p class="text-slate-600">
+                    Test yeching va ball to'plang
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Books -->
+{% if featured_books %}
+<section class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-800">Tavsiya etilgan kitoblar</h2>
+                <p class="text-slate-600 mt-1">Eng sara kitoblar to'plami</p>
+            </div>
+            <a href="{% url 'books:list' %}" class="hidden sm:inline-flex items-center gap-2 text-primary hover:text-emerald-700 font-medium">
+                Barchasi
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for book in featured_books %}
+            <a href="{% url 'books:detail' book.slug %}" class="group">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 border border-slate-200">
+                    <div class="aspect-[3/4] relative overflow-hidden">
+                        {% if book.cover %}
+                        <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                        {% if book.category %}
+                        <div class="absolute top-3 left-3">
+                            <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 rounded-full">
+                                {{ book.category.name }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-semibold text-slate-800 group-hover:text-primary transition line-clamp-2 mb-2">
+                            {{ book.title }}
+                        </h3>
+                        <p class="text-sm text-slate-500">{{ book.author.name }}</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Books -->
+{% if latest_books %}
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h2 class="text-3xl font-bold text-slate-800">Yangi kitoblar</h2>
+                <p class="text-slate-600 mt-1">Eng so'nggi qo'shilgan kitoblar</p>
+            </div>
+            <a href="{% url 'books:list' %}" class="hidden sm:inline-flex items-center gap-2 text-primary hover:text-emerald-700 font-medium">
+                Barchasi
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for book in latest_books %}
+            <a href="{% url 'books:detail' book.slug %}" class="group">
+                <div class="bg-slate-50 rounded-2xl overflow-hidden hover:bg-white hover:shadow-lg transition duration-300 border border-transparent hover:border-slate-200">
+                    <div class="aspect-[3/4] relative overflow-hidden">
+                        {% if book.cover %}
+                        <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium text-slate-800 group-hover:text-primary transition line-clamp-2 text-sm">
+                            {{ book.title }}
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">{{ book.author.name }}</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Categories -->
+{% if categories %}
+<section class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Kategoriyalar</h2>
+            <p class="text-slate-600">Qiziqishingiz bo'yicha kitoblarni toping</p>
+        </div>
+        
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for category in categories %}
+            <a href="{% url 'books:category_detail' category.slug %}" class="flex items-center gap-4 p-5 bg-white rounded-xl hover:shadow-md transition border border-slate-200 group">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                    {{ category.icon|default:"📚" }}
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800 group-hover:text-primary transition">{{ category.name }}</h3>
+                    <p class="text-sm text-slate-500">{{ category.books.count }} ta kitob</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-r from-primary to-emerald-600 text-white">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Hoziroq boshlang!</h2>
+        <p class="text-lg text-emerald-100 mb-8 max-w-2xl mx-auto">
+            AI yordamida kitob o'qish tajribangizni yangi bosqichga olib chiqing. Bepul ro'yxatdan o'ting.
+        </p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'books:list' %}" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary font-semibold rounded-xl hover:bg-slate-100 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            Kitob tanlash
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary font-semibold rounded-xl hover:bg-slate-100 transition">
+            Ro'yxatdan o'tish
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+        </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

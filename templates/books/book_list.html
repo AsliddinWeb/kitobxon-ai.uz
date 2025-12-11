@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Kitoblar - Kitobxon AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-800">Kitoblar</h1>
+            <p class="text-slate-600 mt-1">Barcha mavjud kitoblar</p>
+        </div>
+        
+        <!-- Search -->
+        <form method="GET" class="flex gap-2">
+            <div class="relative">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ query|default:'' }}"
+                    placeholder="Kitob qidirish..."
+                    class="w-full md:w-72 pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
+                >
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <button type="submit" class="px-4 py-2.5 bg-primary hover:bg-emerald-700 text-white font-medium rounded-xl transition">
+                Qidirish
+            </button>
+        </form>
+    </div>
+    
+    <!-- Categories Filter -->
+    <div class="mb-8">
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'books:list' %}" class="px-4 py-2 rounded-full text-sm font-medium transition {% if not selected_category %}bg-primary text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}">
+                Barchasi
+            </a>
+            {% for category in categories %}
+            <a href="?category={{ category.slug }}" class="px-4 py-2 rounded-full text-sm font-medium transition {% if selected_category == category.slug %}bg-primary text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}">
+                {{ category.icon }} {{ category.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Search Results Info -->
+    {% if query %}
+    <div class="mb-6 p-4 bg-blue-50 rounded-xl">
+        <p class="text-blue-800">
+            <span class="font-medium">"{{ query }}"</span> bo'yicha {{ books|length }} ta natija topildi
+            <a href="{% url 'books:list' %}" class="ml-2 text-blue-600 hover:underline">Tozalash</a>
+        </p>
+    </div>
+    {% endif %}
+    
+    <!-- Books Grid -->
+    {% if books %}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for book in books %}
+        <a href="{% url 'books:detail' book.slug %}" class="group">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 border border-slate-200">
+                <div class="aspect-[3/4] relative overflow-hidden">
+                    {% if book.cover %}
+                    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                    
+                    {% if book.category %}
+                    <div class="absolute top-3 left-3">
+                        <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 rounded-full">
+                            {{ category.icon }} {{ book.category.name }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if book.is_featured %}
+                    <div class="absolute top-3 right-3">
+                        <span class="px-2 py-1 bg-amber-500 text-white text-xs font-medium rounded-full">
+                            ⭐ Tavsiya
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-5">
+                    <h3 class="font-semibold text-slate-800 group-hover:text-primary transition line-clamp-2 mb-2">
+                        {{ book.title }}
+                    </h3>
+                    <p class="text-sm text-slate-500 mb-3">{{ book.author.name }}</p>
+                    
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            {{ book.views }}
+                        </span>
+                        <span>{{ book.pages }} sahifa</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16">
+        <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-slate-800 mb-2">Kitob topilmadi</h3>
+        <p class="text-slate-600 mb-6">Boshqa so'z bilan qidirib ko'ring</p>
+        <a href="{% url 'books:list' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-emerald-700 text-white font-medium rounded-xl transition">
+            Barcha kitoblar
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

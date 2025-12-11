@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} - Summary | Kitobxon AI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+        <ol class="flex items-center gap-2 text-sm">
+            <li><a href="{% url 'books:home' %}" class="text-slate-500 hover:text-primary">Bosh sahifa</a></li>
+            <li><span class="text-slate-400">/</span></li>
+            <li><a href="{% url 'books:detail' book.slug %}" class="text-slate-500 hover:text-primary">{{ book.title|truncatewords:3 }}</a></li>
+            <li><span class="text-slate-400">/</span></li>
+            <li class="text-slate-800 font-medium">Summary</li>
+        </ol>
+    </nav>
+    
+    <!-- Header Card -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 mb-8 text-white">
+        <div class="flex items-start gap-5">
+            <!-- Book Cover -->
+            <div class="w-20 h-28 rounded-lg overflow-hidden flex-shrink-0 shadow-lg">
+                {% if book.cover %}
+                <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full bg-white/20 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                    <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="text-blue-200 text-sm font-medium">AI Summary</span>
+                </div>
+                <h1 class="text-2xl font-bold mb-1">{{ book.title }}</h1>
+                <p class="text-blue-200">{{ book.author.name }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Content -->
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        
+        {% if summary %}
+        <!-- Summary Exists -->
+        <div class="p-6 md:p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-slate-800">Kitob Summary</h2>
+                <span class="text-sm text-slate-500">
+                    {{ summary.created_at|date:"d M, Y" }}
+                </span>
+            </div>
+            
+            <div id="summary-content" class="prose prose-slate max-w-none">
+                <div class="whitespace-pre-wrap text-slate-700 leading-relaxed">{{ summary.content }}</div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t border-slate-200">
+                <button 
+                    onclick="regenerateSummary()"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Qayta yaratish
+                </button>
+                <a href="{% url 'ai_chat:chat' book.slug %}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    Savol berish
+                </a>
+                <a href="{% url 'quiz:start' book.slug %}" class="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 hover:border-slate-400 text-slate-700 text-sm font-medium rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    Test yechish
+                </a>
+            </div>
+        </div>
+        
+        {% else %}
+        <!-- No Summary - Generate -->
+        <div class="p-8 text-center">
+            <div id="generate-section">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-2">Summary yaratish</h3>
+                <p class="text-slate-600 mb-6 max-w-md mx-auto">
+                    AI yordamida bu kitobning qisqacha mazmunini yarating. Bu bir necha daqiqa vaqt oladi.
+                </p>
+                <button 
+                    onclick="generateSummary()"
+                    id="generate-btn"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Summary yaratish
+                </button>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loading-section" class="hidden">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-2">AI ishlayapti...</h3>
+                <p class="text-slate-600">Kitob tahlil qilinmoqda, iltimos kuting</p>
+            </div>
+            
+            <!-- Result Section -->
+            <div id="result-section" class="hidden text-left">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Kitob Summary</h2>
+                    <span class="text-sm text-slate-500">Hozirgina yaratildi</span>
+                </div>
+                <div id="summary-result" class="prose prose-slate max-w-none whitespace-pre-wrap text-slate-700 leading-relaxed"></div>
+                
+                <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t border-slate-200">
+                    <a href="{% url 'ai_chat:chat' book.slug %}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        Savol berish
+                    </a>
+                    <a href="{% url 'quiz:start' book.slug %}" class="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 hover:border-slate-400 text-slate-700 text-sm font-medium rounded-lg transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        Test yechish
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const csrfToken = '{{ csrf_token }}';
+    
+    async function generateSummary() {
+        const generateSection = document.getElementById('generate-section');
+        const loadingSection = document.getElementById('loading-section');
+        const resultSection = document.getElementById('result-section');
+        const summaryResult = document.getElementById('summary-result');
+        
+        // Show loading
+        generateSection.classList.add('hidden');
+        loadingSection.classList.remove('hidden');
+        
+        try {
+            const response = await fetch('{% url "summarizer:generate" book.slug %}', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            });
+            
+            const data = await response.json();
+            
+            loadingSection.classList.add('hidden');
+            
+            if (data.success) {
+                summaryResult.textContent = data.summary;
+                resultSection.classList.remove('hidden');
+            } else {
+                alert('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+                generateSection.classList.remove('hidden');
+            }
+        } catch (error) {
+            loadingSection.classList.add('hidden');
+            generateSection.classList.remove('hidden');
+            alert('Tarmoq xatosi. Internetni tekshiring.');
+        }
+    }
+    
+    async function regenerateSummary() {
+        if (!confirm('Summaryni qayta yaratishni xohlaysizmi?')) return;
+        
+        const summaryContent = document.getElementById('summary-content');
+        summaryContent.innerHTML = `
+            <div class="flex items-center justify-center py-8">
+                <svg class="w-8 h-8 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="ml-3 text-slate-600">Qayta yaratilmoqda...</span>
+            </div>
+        `;
+        
+        try {
+            const response = await fetch('{% url "summarizer:generate" book.slug %}', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                summaryContent.innerHTML = `<div class="whitespace-pre-wrap text-slate-700 leading-relaxed">${data.summary}</div>`;
+            } else {
+                location.reload();
+            }
+        } catch (error) {
+            location.reload();
+        }
+    }
+</script>
+{% endblock %}

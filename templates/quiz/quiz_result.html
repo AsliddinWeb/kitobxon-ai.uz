@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Test natijasi | Kitobxon AI{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Result Card -->
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-8">
+        
+        <!-- Header -->
+        <div class="{% if attempt.percentage >= 80 %}bg-gradient-to-r from-emerald-500 to-green-500{% elif attempt.percentage >= 50 %}bg-gradient-to-r from-amber-500 to-orange-500{% else %}bg-gradient-to-r from-red-500 to-rose-500{% endif %} p-8 text-white text-center">
+            
+            <!-- Score Circle -->
+            <div class="w-32 h-32 mx-auto mb-6 relative">
+                <svg class="w-full h-full transform -rotate-90">
+                    <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.3)" stroke-width="8" fill="none"/>
+                    <circle cx="64" cy="64" r="56" stroke="white" stroke-width="8" fill="none"
+                        stroke-dasharray="351.86" 
+                        stroke-dashoffset="{{ 351.86|add:0 }}"
+                        style="stroke-dashoffset: calc(351.86 - (351.86 * {{ attempt.percentage }}) / 100);"
+                        stroke-linecap="round"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-4xl font-bold">{{ attempt.percentage }}%</span>
+                </div>
+            </div>
+            
+            <h1 class="text-2xl font-bold mb-2">
+                {% if attempt.percentage >= 80 %}
+                    Ajoyib natija! 🎉
+                {% elif attempt.percentage >= 50 %}
+                    Yaxshi natija! 👍
+                {% else %}
+                    Qaytadan urinib ko'ring 💪
+                {% endif %}
+            </h1>
+            <p class="text-white/80">{{ attempt.quiz.book.title }}</p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-3 divide-x divide-slate-200">
+            <div class="p-6 text-center">
+                <div class="text-3xl font-bold text-emerald-600">{{ attempt.score }}</div>
+                <div class="text-sm text-slate-500">To'g'ri</div>
+            </div>
+            <div class="p-6 text-center">
+                <div class="text-3xl font-bold text-red-500">{{ attempt.total_questions|add:"-"|add:attempt.score }}</div>
+                <div class="text-sm text-slate-500">Noto'g'ri</div>
+            </div>
+            <div class="p-6 text-center">
+                <div class="text-3xl font-bold text-amber-500">+{{ attempt.score|add:"0" }}0</div>
+                <div class="text-sm text-slate-500">Ball</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Answers Review -->
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200">
+            <h2 class="text-lg font-semibold text-slate-800">Javoblar tahlili</h2>
+        </div>
+        
+        <div class="divide-y divide-slate-200">
+            {% for answer in answers %}
+            <div class="p-6">
+                <!-- Question -->
+                <div class="flex items-start gap-3 mb-4">
+                    <span class="flex-shrink-0 w-8 h-8 {% if answer.is_correct %}bg-emerald-100 text-emerald-700{% else %}bg-red-100 text-red-700{% endif %} rounded-full flex items-center justify-center font-medium text-sm">
+                        {{ forloop.counter }}
+                    </span>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-800">{{ answer.question.question_text }}</p>
+                    </div>
+                    {% if answer.is_correct %}
+                    <svg class="w-6 h-6 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    {% else %}
+                    <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    {% endif %}
+                </div>
+                
+                <!-- Answers -->
+                <div class="ml-11 space-y-2">
+                    {% with options=answer.question.option_a|add:"|"|add:answer.question.option_b|add:"|"|add:answer.question.option_c|add:"|"|add:answer.question.option_d %}
+                    
+                    <!-- User's answer -->
+                    {% if not answer.is_correct %}
+                    <div class="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-sm">
+                        <span class="text-red-600 font-medium">Sizning javobingiz:</span>
+                        <span class="text-red-700">
+                            {% if answer.selected_answer == 0 %}{{ answer.question.option_a }}
+                            {% elif answer.selected_answer == 1 %}{{ answer.question.option_b }}
+                            {% elif answer.selected_answer == 2 %}{{ answer.question.option_c }}
+                            {% else %}{{ answer.question.option_d }}{% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Correct answer -->
+                    <div class="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-sm">
+                        <span class="text-emerald-600 font-medium">To'g'ri javob:</span>
+                        <span class="text-emerald-700">
+                            {% if answer.question.correct_answer == 0 %}{{ answer.question.option_a }}
+                            {% elif answer.question.correct_answer == 1 %}{{ answer.question.option_b }}
+                            {% elif answer.question.correct_answer == 2 %}{{ answer.question.option_c }}
+                            {% else %}{{ answer.question.option_d }}{% endif %}
+                        </span>
+                    </div>
+                    
+                    {% endwith %}
+                    
+                    <!-- Explanation -->
+                    {% if answer.question.explanation %}
+                    <div class="px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+                        <span class="text-blue-600 font-medium">Izoh:</span>
+                        <span class="text-blue-700">{{ answer.question.explanation }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="flex flex-wrap items-center justify-center gap-4 mt-8">
+        <a href="{% url 'quiz:start' attempt.quiz.book.slug %}" class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Qayta yechish
+        </a>
+        <a href="{% url 'ai_chat:chat' attempt.quiz.book.slug %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-emerald-700 text-white font-semibold rounded-xl transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            Savol berish
+        </a>
+        <a href="{% url 'books:detail' attempt.quiz.book.slug %}" class="inline-flex items-center gap-2 px-6 py-3 border border-slate-300 hover:border-slate-400 text-slate-700 font-medium rounded-xl transition">
+            Kitobga qaytish
+        </a>
+    </div>
+</div>
+{% endblock %}
