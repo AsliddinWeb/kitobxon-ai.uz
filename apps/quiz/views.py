@@ -31,7 +31,7 @@ def generate_quiz(request, book_slug):
     # AI orqali savollar yaratish
     ai_service = AIService()
     questions_data = ai_service.generate_quiz(
-        book_content=book.content_text or book.description,
+        book=book,
         num_questions=5
     )
 

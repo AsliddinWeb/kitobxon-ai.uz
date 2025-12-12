@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ book.title }} - Summary | Kitobxon AI{% endblock %}
+{% block title %}{{ book.title }} - Xulosa | Kitobxon AI{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -12,7 +12,7 @@
             <li><span class="text-slate-400">/</span></li>
             <li><a href="{% url 'books:detail' book.slug %}" class="text-slate-500 hover:text-primary">{{ book.title|truncatewords:3 }}</a></li>
             <li><span class="text-slate-400">/</span></li>
-            <li class="text-slate-800 font-medium">Summary</li>
+            <li class="text-slate-800 font-medium">Xulosa</li>
         </ol>
     </nav>
     
@@ -37,7 +37,7 @@
                     <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    <span class="text-blue-200 text-sm font-medium">AI Summary</span>
+                    <span class="text-blue-200 text-sm font-medium">AI Xulosa</span>
                 </div>
                 <h1 class="text-2xl font-bold mb-1">{{ book.title }}</h1>
                 <p class="text-blue-200">{{ book.author.name }}</p>
@@ -52,7 +52,7 @@
         <!-- Summary Exists -->
         <div class="p-6 md:p-8">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-slate-800">Kitob Summary</h2>
+                <h2 class="text-xl font-bold text-slate-800">Kitob Xulosa</h2>
                 <span class="text-sm text-slate-500">
                     {{ summary.created_at|date:"d M, Y" }}
                 </span>
@@ -97,7 +97,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold text-slate-800 mb-2">Summary yaratish</h3>
+                <h3 class="text-xl font-semibold text-slate-800 mb-2">Xulosa yaratish</h3>
                 <p class="text-slate-600 mb-6 max-w-md mx-auto">
                     AI yordamida bu kitobning qisqacha mazmunini yarating. Bu bir necha daqiqa vaqt oladi.
                 </p>
@@ -109,7 +109,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
-                    Summary yaratish
+                    Xulosa yaratish
                 </button>
             </div>
             
@@ -128,7 +128,7 @@
             <!-- Result Section -->
             <div id="result-section" class="hidden text-left">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-slate-800">Kitob Summary</h2>
+                    <h2 class="text-xl font-bold text-slate-800">Kitob Xulosa</h2>
                     <span class="text-sm text-slate-500">Hozirgina yaratildi</span>
                 </div>
                 <div id="summary-result" class="prose prose-slate max-w-none whitespace-pre-wrap text-slate-700 leading-relaxed"></div>
@@ -195,7 +195,7 @@
     }
     
     async function regenerateSummary() {
-        if (!confirm('Summaryni qayta yaratishni xohlaysizmi?')) return;
+        if (!confirm('Xulosani qayta yaratishni xohlaysizmi?')) return;
         
         const summaryContent = document.getElementById('summary-content');
         summaryContent.innerHTML = `

@@ -89,6 +89,10 @@ class BookAdmin(admin.ModelAdmin):
 
     def generate_content_view(self, request, book_id):
         """AI orqali content yaratish"""
+        if not request.user.is_superuser:
+            messages.error(request, 'Faqat superuser uchun!')
+            return redirect(f'/admin/books/book/{book_id}/change/')
+
         book = get_object_or_404(Book, pk=book_id)
 
         try:

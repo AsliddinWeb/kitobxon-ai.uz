@@ -13,79 +13,104 @@ class AIService:
         self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.model = "gpt-4o-mini"
 
-    def chat_with_book(self, book_content: str, user_message: str, chat_history: list = None) -> str:
-        """Kitob kontekstida AI bilan suhbat"""
+    def chat_with_book(self, book, user_message):
+        """Kitob haqida GPT bilan suhbat"""
 
-        if chat_history is None:
-            chat_history = []
+        # Xavfsiz ma'lumot olish
+        author_name = book.author.name if book.author else "Noma'lum"
+        category_name = book.category.name if book.category else "Umumiy"
 
-        system_prompt = f"""Sen "Kitobxon AI" - aqlli kitob yordamchisisan.
-Foydalanuvchi senga kitob haqida savollar beradi.
+        system_prompt = f"""Sen "{book.title}" ({author_name}) kitobi bo'yicha ekspertsan.
 
-📚 KITOB MAZMUNI:
-{book_content[:8000]}
+Kitob haqida ma'lumot:
+- Kitob nomi: {book.title}
+- Muallif: {author_name}
+- Kategoriya: {category_name}
+- Tavsif: {book.description}
 
-📋 QOIDALAR:
-1. Faqat shu kitob haqida gapir
-2. O'zbek tilida javob ber
-3. Qisqa va aniq javob ber
-4. Kitobda yo'q ma'lumot so'ralsa, shuni ayt
-5. Do'stona tonda gapir"""
+Foydalanuvchi savollariga shu kitob kontekstida javob ber.
+O'zbek tilida javob ber.
+Kitobdagi g'oyalar, boblar, misollar haqida batafsil gapir.
+"""
 
-        messages = [{"role": "system", "content": system_prompt}]
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=1000,
+            temperature=0.7
+        )
 
-        for msg in chat_history[-10:]:
-            messages.append({
-                "role": msg['role'],
-                "content": msg['content']
-            })
+        return response.choices[0].message.content
 
-        messages.append({"role": "user", "content": user_message})
-
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                max_tokens=1000,
-                temperature=0.7
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"Xatolik yuz berdi: {str(e)}"
-
-    def generate_summary(self, book_content: str) -> str:
+    def generate_summary(self, book) -> str:
         """Kitob summarini generatsiya qilish"""
 
-        prompt = f"""Quyidagi kitobni o'zbek tilida qisqacha summarla.
+        # Xavfsiz ma'lumot olish
+        author_name = book.author.name if book.author else "Noma'lum"
+        category_name = book.category.name if book.category else "Umumiy"
 
-📚 KITOB:
-{book_content[:10000]}
+        prompt = f"""Sen "{book.title}" ({author_name}) kitobi bo'yicha ekspertsan.
+
+📚 KITOB MA'LUMOTLARI:
+- Kitob nomi: {book.title}
+- Muallif: {author_name}
+- Kategoriya: {category_name}
+- Tavsif: {book.description}
+
+📋 VAZIFA:
+Bu kitobning o'zbek tilida batafsil xulosasini yoz.
 
 📋 FORMAT:
-1. 📖 ASOSIY G'OYA (2-3 gap)
-2. 🎯 MUHIM FIKRLAR (5 ta punkt)
-3. 👤 KIM O'QISHI KERAK (1 gap)
+1. 📖 ASOSIY G'OYA (3-4 gap)
+   - Kitob nima haqida
+   - Asosiy maqsadi
 
-Qisqa va tushunarli yoz."""
+2. 🎯 MUHIM FIKRLAR (5-7 ta punkt)
+   - Har bir fikrni 2-3 gapda tushuntir
+   - Amaliy misollar keltir
+
+3. 💡 ASOSIY SABOQLAR
+   - Kitobdan nimalarni o'rganish mumkin
+   - Hayotda qanday qo'llash mumkin
+
+4. 👤 KIM O'QISHI KERAK
+   - Qaysi odamlarga foydali
+
+Batafsil va foydali xulosa yoz."""
 
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1500,
+                max_tokens=2000,
                 temperature=0.7
             )
             return response.choices[0].message.content
         except Exception as e:
             return f"Xatolik yuz berdi: {str(e)}"
 
-    def generate_quiz(self, book_content: str, num_questions: int = 5) -> list:
+    def generate_quiz(self, book, num_questions: int = 5) -> list:
         """Kitob bo'yicha test savollarini generatsiya qilish"""
 
-        prompt = f"""Quyidagi kitob asosida {num_questions} ta test savoli yarat.
+        # Xavfsiz ma'lumot olish
+        author_name = book.author.name if book.author else "Noma'lum"
+        category_name = book.category.name if book.category else "Umumiy"
 
-📚 KITOB:
-{book_content[:8000]}
+        prompt = f"""Sen "{book.title}" ({author_name}) kitobi bo'yicha ekspertsan.
+
+📚 KITOB MA'LUMOTLARI:
+- Kitob nomi: {book.title}
+- Muallif: {author_name}
+- Kategoriya: {category_name}
+- Tavsif: {book.description}
+
+📋 VAZIFA:
+Bu kitob asosida {num_questions} ta test savoli yarat.
+
+Savollar kitobning asosiy g'oyalari, muhim fikrlari va amaliy maslahatlari haqida bo'lsin.
 
 JSON formatda javob ber:
 {{
@@ -94,16 +119,18 @@ JSON formatda javob ber:
             "question": "Savol matni",
             "options": ["A variant", "B variant", "C variant", "D variant"],
             "correct": 0,
-            "explanation": "Tushuntirish"
+            "explanation": "Nima uchun bu javob to'g'ri - tushuntirish"
         }}
     ]
-}}"""
+}}
+
+Savollar qiziqarli va o'rgatuvchi bo'lsin."""
 
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000,
+                max_tokens=2500,
                 temperature=0.7,
                 response_format={"type": "json_object"}
             )

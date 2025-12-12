@@ -60,9 +60,8 @@ def send_message(request):
         # AI javobini olish
         ai_service = AIService()
         ai_response = ai_service.chat_with_book(
-            book_content=book.content_text or book.description,
-            user_message=user_message,
-            chat_history=history[:-1]
+            book=book,
+            user_message=user_message
         )
 
         # AI javobini saqlash

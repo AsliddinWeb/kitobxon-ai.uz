@@ -1,9 +1,14 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="uz" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Kitobxon AI - Sun'iy intellekt yordamida kitob o'qish platformasi">
+
+    <link rel="icon" type="image/x-icon" href="{% static './favicon.ico' %}">
+
     <title>{% block title %}Kitobxon AI{% endblock %}</title>
 
     <!-- Tailwind CSS CDN -->
@@ -138,11 +143,17 @@
                     </div>
 
                     {% else %}
-                    <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary transition">
-                        Kirish
+                    <a href="{% url 'accounts:login' %}" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary transition flex items-center justify-center">
+                        <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                        </svg>
+                        <span class="hidden md:inline">Kirish</span>
                     </a>
-                    <a href="{% url 'accounts:register' %}" class="px-4 py-2 bg-primary hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition">
-                        Ro'yxatdan o'tish
+                    <a href="{% url 'accounts:register' %}" class="px-4 py-2 bg-primary hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition flex items-center justify-center">
+                        <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        <span class="hidden md:inline">Ro'yxatdan o'tish</span>
                     </a>
                     {% endif %}
 
@@ -215,7 +226,7 @@
                         <span class="text-xl font-bold text-white">Kitobxon AI</span>
                     </div>
                     <p class="text-sm leading-relaxed max-w-md">
-                        Sun'iy intellekt yordamida kitob o'qish tajribangizni yangi bosqichga olib chiqing. Kitoblar bilan suhbatlashing, summary oling va bilimingizni sinang.
+                        Sun'iy intellekt yordamida kitob o'qish tajribangizni yangi bosqichga olib chiqing. Kitoblar bilan suhbatlashing, xulosa oling va bilimingizni sinang.
                     </p>
                 </div>
 
@@ -244,14 +255,20 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
-                            info@kitobxon.uz
+                            asliddinsinger@gmail.com
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                            </svg>
+                            <a href="https://t.me/asliddin_abdujabborov" target="_blank" class="hover:text-primary transition">@asliddin_abdujabborov</a>
                         </li>
                     </ul>
                 </div>
             </div>
 
             <div class="border-t border-slate-800 mt-10 pt-6 text-center text-sm">
-                <p>© 2024 Kitobxon AI. AI Hackathon Kashkadarya uchun yaratildi.</p>
+                <p>© 2025 Kitobxon AI. "AI Hackathon Kashkadarya" uchun yaratildi.</p>
             </div>
         </div>
     </footer>

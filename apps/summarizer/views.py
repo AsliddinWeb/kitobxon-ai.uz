@@ -29,9 +29,7 @@ def generate_summary(request, book_slug):
 
     # AI orqali summary yaratish
     ai_service = AIService()
-    summary_text = ai_service.generate_summary(
-        book_content=book.content_text or book.description
-    )
+    summary_text = ai_service.generate_summary(book=book)
 
     # Saqlash
     summary, created = Summary.objects.update_or_create(
