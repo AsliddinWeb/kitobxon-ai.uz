@@ -6,8 +6,10 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 from apps.books.models import Book
-from .models import ChatSession, Message
+from .models import ChatSession, Message, BookComparison
 from .services.openai_service import AIService
+
+from django.contrib import messages
 
 
 @login_required
@@ -100,3 +102,95 @@ def chat_history(request):
         'sessions': sessions,
     }
     return render(request, 'ai_chat/history.html', context)
+
+# Kitob taqqoslash view
+@login_required
+def compare_view(request):
+    """Kitoblarni taqqoslash sahifasi"""
+
+    books = Book.objects.all()
+    comparison = None
+    book1 = None
+    book2 = None
+
+    if request.method == 'POST':
+        book1_id = request.POST.get('book1')
+        book2_id = request.POST.get('book2')
+
+        if book1_id and book2_id:
+            if book1_id == book2_id:
+                messages.error(request, "Iltimos, 2 ta turli kitob tanlang!")
+            else:
+                book1 = get_object_or_404(Book, id=book1_id)
+                book2 = get_object_or_404(Book, id=book2_id)
+
+                ai_service = AIService()
+
+                # Taqqoslashni olish yoki yaratish
+                comparison_obj, created = BookComparison.get_or_create_comparison(
+                    user=request.user,
+                    book1=book1,
+                    book2=book2,
+                    ai_service=ai_service
+                )
+
+                # Taqqoslash sahifasiga yo'naltirish
+                if created:
+                    messages.success(request, "Taqqoslash muvaffaqiyatli yaratildi!")
+                else:
+                    messages.info(request, "Bu taqqoslash avval yaratilgan.")
+
+                return redirect('ai_chat:comparison_detail', comparison_id=comparison_obj.id)
+
+    context = {
+        'books': books,
+        'comparison': comparison,
+        'book1': book1,
+        'book2': book2,
+    }
+    return render(request, 'ai_chat/compare.html', context)
+
+
+@login_required
+def comparison_detail_view(request, comparison_id):
+    """Taqqoslash detallari sahifasi"""
+
+    comparison = get_object_or_404(BookComparison, id=comparison_id)
+
+    # Ko'rishlar sonini oshirish (faqat boshqa foydalanuvchilar uchun)
+    if comparison.user != request.user:
+        comparison.increment_views()
+
+    context = {
+        'comparison_obj': comparison,
+        'comparison': comparison.comparison_html,
+        'book1': comparison.book1,
+        'book2': comparison.book2,
+    }
+    return render(request, 'ai_chat/comparison_detail.html', context)
+
+
+@login_required
+def my_comparisons_view(request):
+    """Foydalanuvchining barcha taqqoslashlari"""
+
+    comparisons = BookComparison.objects.filter(user=request.user)
+
+    context = {
+        'comparisons': comparisons,
+    }
+    return render(request, 'ai_chat/my_comparisons.html', context)
+
+
+@login_required
+def delete_comparison_view(request, comparison_id):
+    """Taqqoslashni o'chirish"""
+
+    comparison = get_object_or_404(BookComparison, id=comparison_id, user=request.user)
+
+    if request.method == 'POST':
+        comparison.delete()
+        messages.success(request, "Taqqoslash muvaffaqiyatli o'chirildi!")
+        return redirect('ai_chat:my_comparisons')
+
+    return redirect('ai_chat:comparison_detail', comparison_id=comparison_id)

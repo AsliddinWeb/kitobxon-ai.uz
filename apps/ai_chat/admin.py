@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ChatSession, Message
+from .models import ChatSession, Message, BookComparison
 
 
 class MessageInline(admin.TabularInline):
@@ -25,3 +25,25 @@ class MessageAdmin(admin.ModelAdmin):
         return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
 
     short_content.short_description = 'Xabar'
+
+
+@admin.register(BookComparison)
+class BookComparisonAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'book1', 'book2', 'views_count', 'created_at']
+    list_filter = ['created_at', 'views_count']
+    search_fields = ['user__username', 'book1__title', 'book2__title']
+    date_hierarchy = 'created_at'
+    readonly_fields = ['id', 'created_at', 'updated_at', 'views_count']
+
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('id', 'user', 'book1', 'book2')
+        }),
+        ('Taqqoslash matni', {
+            'fields': ('comparison_html',),
+            'classes': ('wide',)
+        }),
+        ('Statistika', {
+            'fields': ('views_count', 'created_at', 'updated_at')
+        }),
+    )

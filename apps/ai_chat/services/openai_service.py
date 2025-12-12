@@ -193,3 +193,159 @@ To'liq, batafsil, foydali content yoz. Kamida 3000 so'z bo'lsin."""
             return response.choices[0].message.content
         except Exception as e:
             return f"Xatolik yuz berdi: {str(e)}"
+
+
+    # Kitob taqqoslash metodi
+    def compare_books(self, book1, book2) -> str:
+        """Ikki kitobni AI bilan taqqoslash - HTML formatda"""
+
+        # Book 1 ma'lumotlari
+        author1 = book1.author.name if book1.author else "Noma'lum"
+        category1 = book1.category.name if book1.category else "Umumiy"
+
+        # Book 2 ma'lumotlari
+        author2 = book2.author.name if book2.author else "Noma'lum"
+        category2 = book2.category.name if book2.category else "Umumiy"
+
+        prompt = f"""Sen kitob ekspertisan. Quyidagi 2 ta kitobni taqqosla.
+
+    📚 KITOB 1:
+    - Nomi: {book1.title}
+    - Muallif: {author1}
+    - Kategoriya: {category1}
+    - Tavsif: {book1.description}
+
+    📚 KITOB 2:
+    - Nomi: {book2.title}
+    - Muallif: {author2}
+    - Kategoriya: {category2}
+    - Tavsif: {book2.description}
+
+    📋 VAZIFA:
+    Quyidagi HTML formatda taqqoslash yoz (O'zbek tilida, faqat HTML kod, hech qanday qo'shimcha matn yoki tushuntirish yo'q):
+
+    <div class="space-y-6">
+        <!-- Umumiy taqqoslash -->
+        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>📊</span> Umumiy taqqoslash
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left py-3 px-4">Xususiyat</th>
+                            <th class="text-left py-3 px-4">{book1.title}</th>
+                            <th class="text-left py-3 px-4">{book2.title}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="py-3 px-4 font-semibold">Mavzu</td>
+                            <td class="py-3 px-4">...</td>
+                            <td class="py-3 px-4">...</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-semibold">Qiyinlik</td>
+                            <td class="py-3 px-4">...</td>
+                            <td class="py-3 px-4">...</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-semibold">O'qish vaqti</td>
+                            <td class="py-3 px-4">...</td>
+                            <td class="py-3 px-4">...</td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-semibold">Amaliylik</td>
+                            <td class="py-3 px-4">...</td>
+                            <td class="py-3 px-4">...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Asosiy farqlar -->
+        <div class="bg-white rounded-2xl p-6 border-2 border-slate-200">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>🎯</span> Asosiy farqlar
+            </h2>
+            <ul class="space-y-3">
+                <li class="flex items-start gap-3">
+                    <span class="text-purple-500 text-xl flex-shrink-0">•</span>
+                    <span class="text-slate-700">...</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-purple-500 text-xl flex-shrink-0">•</span>
+                    <span class="text-slate-700">...</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-purple-500 text-xl flex-shrink-0">•</span>
+                    <span class="text-slate-700">...</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Kim uchun mos -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-purple-50 rounded-2xl p-6 border-2 border-purple-200">
+                <h3 class="text-xl font-bold text-purple-700 mb-3 flex items-center gap-2">
+                    <span>📚</span> {book1.title}
+                </h3>
+                <p class="text-slate-700 leading-relaxed">...</p>
+            </div>
+            <div class="bg-pink-50 rounded-2xl p-6 border-2 border-pink-200">
+                <h3 class="text-xl font-bold text-pink-700 mb-3 flex items-center gap-2">
+                    <span>📖</span> {book2.title}
+                </h3>
+                <p class="text-slate-700 leading-relaxed">...</p>
+            </div>
+        </div>
+
+        <!-- Tavsiya -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>⭐</span> Tavsiya
+            </h2>
+            <p class="text-slate-700 leading-relaxed">...</p>
+        </div>
+
+        <!-- Xulosa -->
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border-2 border-slate-300">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <span>🏆</span> Xulosa
+            </h2>
+            <p class="text-slate-700 leading-relaxed text-lg">...</p>
+        </div>
+    </div>
+
+    MUHIM: Faqat HTML kod yoz, hech qanday qo'shimcha matn, tushuntirish yoki markdown yo'q. To'g'ridan-to'g'ri <div> dan boshla va </div> bilan tugat."""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=2500,
+                temperature=0.7
+            )
+
+            html_content = response.choices[0].message.content.strip()
+
+            # Agar markdown kod bloki bilan kelgan bo'lsa, uni olib tashlash
+            if html_content.startswith('```html'):
+                html_content = html_content.replace('```html', '').replace('```', '').strip()
+            elif html_content.startswith('```'):
+                html_content = html_content.replace('```', '').strip()
+
+            return html_content
+
+        except Exception as e:
+            return f"""
+            <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+                <h3 class="text-xl font-bold text-red-700 mb-2">❌ Xatolik</h3>
+                <p class="text-red-600">Taqqoslashda xatolik yuz berdi: {str(e)}</p>
+            </div>
+            """
+
+
+
