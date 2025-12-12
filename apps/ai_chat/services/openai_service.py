@@ -46,51 +46,154 @@ Kitobdagi g'oyalar, boblar, misollar haqida batafsil gapir.
         return response.choices[0].message.content
 
     def generate_summary(self, book) -> str:
-        """Kitob summarini generatsiya qilish"""
+        """Kitob summarini HTML formatda generatsiya qilish"""
 
-        # Xavfsiz ma'lumot olish
         author_name = book.author.name if book.author else "Noma'lum"
         category_name = book.category.name if book.category else "Umumiy"
 
         prompt = f"""Sen "{book.title}" ({author_name}) kitobi bo'yicha ekspertsan.
 
-📚 KITOB MA'LUMOTLARI:
-- Kitob nomi: {book.title}
-- Muallif: {author_name}
-- Kategoriya: {category_name}
-- Tavsif: {book.description}
+    📚 KITOB MA'LUMOTLARI:
+    - Kitob nomi: {book.title}
+    - Muallif: {author_name}
+    - Kategoriya: {category_name}
+    - Tavsif: {book.description}
 
-📋 VAZIFA:
-Bu kitobning o'zbek tilida batafsil xulosasini yoz.
+    📋 VAZIFA:
+    Bu kitobning o'zbek tilida batafsil xulosasini HTML formatda yoz.
 
-📋 FORMAT:
-1. 📖 ASOSIY G'OYA (3-4 gap)
-   - Kitob nima haqida
-   - Asosiy maqsadi
+    Quyidagi HTML formatda javob yoz (faqat HTML kod, hech qanday markdown yoki qo'shimcha matn yo'q):
 
-2. 🎯 MUHIM FIKRLAR (5-7 ta punkt)
-   - Har bir fikrni 2-3 gapda tushuntir
-   - Amaliy misollar keltir
+    <div class="space-y-4">
+        <!-- Asosiy g'oya -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <span>📖</span> Asosiy g'oya
+            </h2>
+            <p class="text-slate-700 leading-relaxed">
+                [Kitobning asosiy g'oyasi 3-4 gapda]
+            </p>
+        </div>
 
-3. 💡 ASOSIY SABOQLAR
-   - Kitobdan nimalarni o'rganish mumkin
-   - Hayotda qanday qo'llash mumkin
+        <!-- Muhim fikrlar -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <span>🎯</span> Muhim fikrlar
+            </h2>
+            <div class="space-y-3">
+                <div class="flex gap-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-sm">1</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-emerald-800 mb-1 text-sm">[Fikr sarlavhasi]</h3>
+                        <p class="text-slate-600 text-sm">[Fikrni tushuntirish 2-3 gap]</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-sm">2</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-blue-800 mb-1 text-sm">[Fikr sarlavhasi]</h3>
+                        <p class="text-slate-600 text-sm">[Fikrni tushuntirish 2-3 gap]</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-sm">3</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-purple-800 mb-1 text-sm">[Fikr sarlavhasi]</h3>
+                        <p class="text-slate-600 text-sm">[Fikrni tushuntirish 2-3 gap]</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-sm">4</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-amber-800 mb-1 text-sm">[Fikr sarlavhasi]</h3>
+                        <p class="text-slate-600 text-sm">[Fikrni tushuntirish 2-3 gap]</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 p-3 bg-rose-50 rounded-lg border border-rose-200">
+                    <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-bold text-sm">5</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-rose-800 mb-1 text-sm">[Fikr sarlavhasi]</h3>
+                        <p class="text-slate-600 text-sm">[Fikrni tushuntirish 2-3 gap]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-4. 👤 KIM O'QISHI KERAK
-   - Qaysi odamlarga foydali
+        <!-- Asosiy saboqlar -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
+            <h2 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <span>💡</span> Asosiy saboqlar
+            </h2>
+            <ul class="space-y-2">
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-500 text-lg">✓</span>
+                    <span class="text-slate-700 text-sm">[Saboq 1]</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-500 text-lg">✓</span>
+                    <span class="text-slate-700 text-sm">[Saboq 2]</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-500 text-lg">✓</span>
+                    <span class="text-slate-700 text-sm">[Saboq 3]</span>
+                </li>
+            </ul>
+        </div>
 
-Batafsil va foydali xulosa yoz."""
+        <!-- Kim o'qishi kerak -->
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-300">
+            <h2 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <span>👤</span> Kim o'qishi kerak?
+            </h2>
+            <p class="text-slate-700 leading-relaxed text-sm">[Qaysi odamlarga bu kitob foydali]</p>
+        </div>
+
+        <!-- Xulosa -->
+        <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl p-4 text-white">
+            <h2 class="text-xl font-bold mb-3 flex items-center gap-2">
+                <span>🏆</span> Yakuniy xulosa
+            </h2>
+            <p class="leading-relaxed text-sm text-emerald-50">[Kitobning asosiy xabari va qimmati]</p>
+        </div>
+    </div>
+
+    MUHIM: Faqat HTML kod yoz, hech qanday markdown, ``` yoki qo'shimcha matn yo'q."""
 
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000,
+                max_tokens=2500,
                 temperature=0.7
             )
-            return response.choices[0].message.content
+
+            html_content = response.choices[0].message.content.strip()
+
+            # Markdown kod blokini olib tashlash
+            if html_content.startswith('```html'):
+                html_content = html_content.replace('```html', '').replace('```', '').strip()
+            elif html_content.startswith('```'):
+                html_content = html_content.replace('```', '').strip()
+
+            return html_content
+
         except Exception as e:
-            return f"Xatolik yuz berdi: {str(e)}"
+            return f"""
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                <h3 class="text-lg font-bold text-red-700 mb-2">❌ Xatolik</h3>
+                <p class="text-red-600 text-sm">Xulosa yaratishda xatolik: {str(e)}</p>
+            </div>
+            """
 
     def generate_quiz(self, book, num_questions: int = 5) -> list:
         """Kitob bo'yicha test savollarini generatsiya qilish"""

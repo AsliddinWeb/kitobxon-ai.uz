@@ -2,6 +2,25 @@
 
 {% block title %}{{ book.title }} - Xulosa | Kitobxon AI{% endblock %}
 
+{% block extra_css %}
+<style>
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fade-in 0.3s ease-out;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
@@ -58,20 +77,22 @@
                 </span>
             </div>
             
-            <div id="summary-content" class="prose prose-slate max-w-none">
-                <div class="whitespace-pre-wrap text-slate-700 leading-relaxed">{{ summary.content }}</div>
+            <!-- Summary Content Container -->
+            <div id="summary-content-wrapper">
+                {{ summary.content|safe }}
             </div>
-            
+
             <!-- Actions -->
             <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t border-slate-200">
-                <button 
+                <button
                     onclick="regenerateSummary()"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
+                    id="regenerate-btn"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
-                    Qayta yaratish
+                    <span id="regenerate-text">Qayta yaratish</span>
                 </button>
                 <a href="{% url 'ai_chat:chat' book.slug %}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +108,7 @@
                 </a>
             </div>
         </div>
-        
+
         {% else %}
         <!-- No Summary - Generate -->
         <div class="p-8 text-center">
@@ -101,10 +122,10 @@
                 <p class="text-slate-600 mb-6 max-w-md mx-auto">
                     AI yordamida bu kitobning qisqacha mazmunini yarating. Bu bir necha daqiqa vaqt oladi.
                 </p>
-                <button 
+                <button
                     onclick="generateSummary()"
                     id="generate-btn"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -112,7 +133,7 @@
                     Xulosa yaratish
                 </button>
             </div>
-            
+
             <!-- Loading State -->
             <div id="loading-section" class="hidden">
                 <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -124,15 +145,15 @@
                 <h3 class="text-xl font-semibold text-slate-800 mb-2">AI ishlayapti...</h3>
                 <p class="text-slate-600">Kitob tahlil qilinmoqda, iltimos kuting</p>
             </div>
-            
+
             <!-- Result Section -->
             <div id="result-section" class="hidden text-left">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-slate-800">Kitob Xulosa</h2>
                     <span class="text-sm text-slate-500">Hozirgina yaratildi</span>
                 </div>
-                <div id="summary-result" class="prose prose-slate max-w-none whitespace-pre-wrap text-slate-700 leading-relaxed"></div>
-                
+                <div id="summary-result"></div>
+
                 <div class="flex flex-wrap gap-3 mt-8 pt-6 border-t border-slate-200">
                     <a href="{% url 'ai_chat:chat' book.slug %}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,17 +178,21 @@
 {% block extra_js %}
 <script>
     const csrfToken = '{{ csrf_token }}';
-    
+
     async function generateSummary() {
         const generateSection = document.getElementById('generate-section');
         const loadingSection = document.getElementById('loading-section');
         const resultSection = document.getElementById('result-section');
         const summaryResult = document.getElementById('summary-result');
-        
+        const generateBtn = document.getElementById('generate-btn');
+
+        // Disable button
+        generateBtn.disabled = true;
+
         // Show loading
         generateSection.classList.add('hidden');
         loadingSection.classList.remove('hidden');
-        
+
         try {
             const response = await fetch('{% url "summarizer:generate" book.slug %}', {
                 method: 'GET',
@@ -175,39 +200,58 @@
                     'X-CSRFToken': csrfToken
                 }
             });
-            
+
             const data = await response.json();
-            
+
             loadingSection.classList.add('hidden');
-            
+
             if (data.success) {
-                summaryResult.textContent = data.summary;
+                // Use innerHTML for HTML content
+                summaryResult.innerHTML = data.summary;
                 resultSection.classList.remove('hidden');
             } else {
-                alert('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+                alert('Xatolik yuz berdi: ' + (data.error || 'Noma\'lum xatolik'));
                 generateSection.classList.remove('hidden');
+                generateBtn.disabled = false;
             }
         } catch (error) {
+            console.error('Xatolik:', error);
             loadingSection.classList.add('hidden');
             generateSection.classList.remove('hidden');
+            generateBtn.disabled = false;
             alert('Tarmoq xatosi. Internetni tekshiring.');
         }
     }
-    
+
     async function regenerateSummary() {
-        if (!confirm('Xulosani qayta yaratishni xohlaysizmi?')) return;
-        
-        const summaryContent = document.getElementById('summary-content');
-        summaryContent.innerHTML = `
-            <div class="flex items-center justify-center py-8">
-                <svg class="w-8 h-8 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+        if (!confirm('Xulosani qayta yaratishni xohlaysizmi? Bu amalni bekor qilib bo\'lmaydi.')) {
+            return;
+        }
+
+        const wrapper = document.getElementById('summary-content-wrapper');
+        const regenerateBtn = document.getElementById('regenerate-btn');
+        const regenerateText = document.getElementById('regenerate-text');
+
+        if (!wrapper) {
+            console.error('summary-content-wrapper topilmadi');
+            return;
+        }
+
+        // Disable button and show loading
+        regenerateBtn.disabled = true;
+        regenerateText.textContent = 'Yaratilmoqda...';
+
+        // Show loading state
+        wrapper.innerHTML = `
+            <div class="flex items-center justify-center py-12">
+                <svg class="w-8 h-8 text-blue-600 animate-spin mr-3" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span class="ml-3 text-slate-600">Qayta yaratilmoqda...</span>
+                <span class="text-slate-600 font-medium">AI xulosa yaratmoqda...</span>
             </div>
         `;
-        
+
         try {
             const response = await fetch('{% url "summarizer:generate" book.slug %}', {
                 method: 'GET',
@@ -215,16 +259,33 @@
                     'X-CSRFToken': csrfToken
                 }
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
-                summaryContent.innerHTML = `<div class="whitespace-pre-wrap text-slate-700 leading-relaxed">${data.summary}</div>`;
+                // Update with new HTML content
+                wrapper.innerHTML = data.summary;
+
+                // Show success message
+                const successMsg = document.createElement('div');
+                successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+                successMsg.textContent = '✓ Xulosa muvaffaqiyatli yangilandi';
+                document.body.appendChild(successMsg);
+
+                setTimeout(() => {
+                    successMsg.remove();
+                }, 3000);
             } else {
-                location.reload();
+                throw new Error(data.error || 'Xatolik yuz berdi');
             }
         } catch (error) {
+            console.error('Regenerate xatosi:', error);
+            alert('Xatolik: ' + error.message);
+            // Reload page to show original content
             location.reload();
+        } finally {
+            regenerateBtn.disabled = false;
+            regenerateText.textContent = 'Qayta yaratish';
         }
     }
 </script>

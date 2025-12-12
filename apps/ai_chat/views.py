@@ -4,18 +4,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.contrib import messages
 
 from apps.books.models import Book
 from .models import ChatSession, Message, BookComparison, Recommendation
 from .services.openai_service import AIService
 
-from django.contrib import messages
-
 
 @login_required
 def chat_view(request, book_slug):
     """Kitob bilan chat sahifasi"""
-
     book = get_object_or_404(Book, slug=book_slug)
 
     session, created = ChatSession.objects.get_or_create(
@@ -23,12 +21,12 @@ def chat_view(request, book_slug):
         book=book
     )
 
-    messages = session.messages.all()
+    chat_messages = session.messages.all()
 
     context = {
         'book': book,
         'session': session,
-        'messages': messages,
+        'messages': chat_messages,
     }
     return render(request, 'ai_chat/chat.html', context)
 
@@ -37,7 +35,6 @@ def chat_view(request, book_slug):
 @require_POST
 def send_message(request):
     """Xabar yuborish (AJAX)"""
-
     try:
         data = json.loads(request.body)
         session_id = data.get('session_id')
@@ -55,9 +52,6 @@ def send_message(request):
             role='user',
             content=user_message
         )
-
-        # Chat tarixini olish
-        history = list(session.messages.values('role', 'content'))
 
         # AI javobini olish
         ai_service = AIService()
@@ -85,33 +79,58 @@ def send_message(request):
 @login_required
 def clear_chat(request, session_id):
     """Chat tarixini tozalash"""
-
     session = get_object_or_404(ChatSession, id=session_id, user=request.user)
     session.messages.all().delete()
-
     return redirect('ai_chat:chat', book_slug=session.book.slug)
 
 
 @login_required
 def chat_history(request):
-    """Foydalanuvchi chat tarixi"""
+    """
+    Foydalanuvchining barcha AI faoliyatlari tarixi:
+    - Chat sessiyalari (kitob bilan suhbat)
+    - Kitob taqqoslashlari
+    - Kitob tavsiyalari
+    """
+    user = request.user
 
-    sessions = ChatSession.objects.filter(user=request.user).select_related('book')
+    # Chat sessiyalari (faqat xabarlari borlarini)
+    chat_sessions = ChatSession.objects.filter(
+        user=user,
+        messages__isnull=False
+    ).select_related('book', 'book__author').distinct()
+
+    # Kitob taqqoslashlari
+    comparisons = BookComparison.objects.filter(
+        user=user
+    ).select_related('book1', 'book2')
+
+    # Kitob tavsiyalari
+    recommendations = Recommendation.objects.filter(user=user)
+
+    # Statistika
+    stats = {
+        'total_chats': chat_sessions.count(),
+        'total_comparisons': comparisons.count(),
+        'total_recommendations': recommendations.count(),
+        'total_messages': Message.objects.filter(session__user=user).count(),
+    }
 
     context = {
-        'sessions': sessions,
+        'chat_sessions': chat_sessions[:10],
+        'comparisons': comparisons[:10],
+        'recommendations': recommendations[:10],
+        'stats': stats,
     }
     return render(request, 'ai_chat/history.html', context)
 
-# Kitob taqqoslash view
+
+# ============== KITOB TAQQOSLASH ==============
+
 @login_required
 def compare_view(request):
     """Kitoblarni taqqoslash sahifasi"""
-
-    books = Book.objects.all()
-    comparison = None
-    book1 = None
-    book2 = None
+    books = Book.objects.select_related('author').all()
 
     if request.method == 'POST':
         book1_id = request.POST.get('book1')
@@ -134,7 +153,6 @@ def compare_view(request):
                     ai_service=ai_service
                 )
 
-                # Taqqoslash sahifasiga yo'naltirish
                 if created:
                     messages.success(request, "Taqqoslash muvaffaqiyatli yaratildi!")
                 else:
@@ -144,9 +162,6 @@ def compare_view(request):
 
     context = {
         'books': books,
-        'comparison': comparison,
-        'book1': book1,
-        'book2': book2,
     }
     return render(request, 'ai_chat/compare.html', context)
 
@@ -154,7 +169,6 @@ def compare_view(request):
 @login_required
 def comparison_detail_view(request, comparison_id):
     """Taqqoslash detallari sahifasi"""
-
     comparison = get_object_or_404(BookComparison, id=comparison_id)
 
     # Ko'rishlar sonini oshirish (faqat boshqa foydalanuvchilar uchun)
@@ -173,8 +187,9 @@ def comparison_detail_view(request, comparison_id):
 @login_required
 def my_comparisons_view(request):
     """Foydalanuvchining barcha taqqoslashlari"""
-
-    comparisons = BookComparison.objects.filter(user=request.user)
+    comparisons = BookComparison.objects.filter(
+        user=request.user
+    ).select_related('book1', 'book2')
 
     context = {
         'comparisons': comparisons,
@@ -185,7 +200,6 @@ def my_comparisons_view(request):
 @login_required
 def delete_comparison_view(request, comparison_id):
     """Taqqoslashni o'chirish"""
-
     comparison = get_object_or_404(BookComparison, id=comparison_id, user=request.user)
 
     if request.method == 'POST':
@@ -196,10 +210,11 @@ def delete_comparison_view(request, comparison_id):
     return redirect('ai_chat:comparison_detail', comparison_id=comparison_id)
 
 
+# ============== KITOB TAVSIYA ==============
+
 @login_required
 def recommend_view(request):
     """AI kitob tavsiya sahifasi"""
-
     recommendation = None
     user_request = None
 
@@ -228,3 +243,16 @@ def recommend_view(request):
         'past_recommendations': past_recommendations,
     }
     return render(request, 'ai_chat/recommend.html', context)
+
+
+@login_required
+def delete_recommendation_view(request, pk):
+    """Tavsiyani o'chirish"""
+    recommendation = get_object_or_404(Recommendation, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        recommendation.delete()
+        messages.success(request, "Tavsiya o'chirildi!")
+        return redirect('ai_chat:history')
+
+    return redirect('ai_chat:history')

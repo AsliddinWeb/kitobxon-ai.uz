@@ -1,94 +1,280 @@
 {% extends 'base.html' %}
 
-{% block title %}Chat tarixi - Kitobxon AI{% endblock %}
+{% block title %}AI Tarixi - Kitobxon AI{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-slate-800">Chat tarixi</h1>
-        <p class="text-slate-600 mt-1">Oldingi suhbatlaringiz</p>
+        <h1 class="text-3xl font-bold text-slate-800">🤖 AI Tarixi</h1>
+        <p class="text-slate-600 mt-1">Barcha AI faoliyatlaringiz bir joyda</p>
     </div>
-    
-    {% if sessions %}
-    <div class="space-y-4">
-        {% for session in sessions %}
-        <div class="bg-white rounded-2xl border border-slate-200 hover:shadow-lg transition overflow-hidden">
-            <a href="{% url 'ai_chat:chat' session.book.slug %}" class="block p-5">
-                <div class="flex items-start gap-4">
-                    <!-- Book Cover -->
-                    <div class="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                        {% if session.book.cover %}
-                        <img src="{{ session.book.cover.url }}" alt="{{ session.book.title }}" class="w-full h-full object-cover">
-                        {% else %}
-                        <div class="w-full h-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Info -->
-                    <div class="flex-1 min-w-0">
-                        <h3 class="font-semibold text-slate-800 truncate">{{ session.book.title }}</h3>
-                        <p class="text-sm text-slate-500 mb-2">{{ session.book.author.name }}</p>
-                        
-                        <!-- Last message preview -->
-                        {% with last_message=session.messages.last %}
-                        {% if last_message %}
-                        <p class="text-sm text-slate-600 line-clamp-2">
-                            <span class="font-medium">{{ last_message.role|title }}:</span>
-                            {{ last_message.content|truncatewords:20 }}
-                        </p>
-                        {% endif %}
-                        {% endwith %}
-                        
-                        <div class="flex items-center gap-4 mt-3 text-xs text-slate-400">
-                            <span class="flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                                {{ session.messages.count }} xabar
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                {{ session.updated_at|timesince }} oldin
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <!-- Arrow -->
-                    <div class="flex-shrink-0 self-center">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Chat Sessions -->
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-100 text-sm">Suhbatlar</p>
+                    <p class="text-3xl font-bold">{{ stats.total_chats }}</p>
                 </div>
-            </a>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                </div>
+            </div>
         </div>
-        {% endfor %}
+
+        <!-- Comparisons -->
+        <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-100 text-sm">Taqqoslashlar</p>
+                    <p class="text-3xl font-bold">{{ stats.total_comparisons }}</p>
+                </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-2xl p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-emerald-100 text-sm">Tavsiyalar</p>
+                    <p class="text-3xl font-bold">{{ stats.total_recommendations }}</p>
+                </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Messages -->
+        <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-amber-100 text-sm">Xabarlar</p>
+                    <p class="text-3xl font-bold">{{ stats.total_messages }}</p>
+                </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
-    {% else %}
-    <!-- Empty State -->
-    <div class="text-center py-16">
-        <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+
+    <!-- Quick Actions -->
+    <div class="flex flex-wrap gap-3 mb-8">
+        <a href="{% url 'ai_chat:compare' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-100 text-purple-700 font-semibold rounded-xl hover:bg-purple-200 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-        </div>
-        <h3 class="text-xl font-semibold text-slate-800 mb-2">Hali suhbat yo'q</h3>
-        <p class="text-slate-600 mb-6">Kitob tanlang va AI bilan suhbatni boshlang</p>
-        <a href="{% url 'books:list' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-emerald-700 text-white font-medium rounded-xl transition">
+            Yangi taqqoslash
+        </a>
+        <a href="{% url 'ai_chat:recommend' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-100 text-emerald-700 font-semibold rounded-xl hover:bg-emerald-200 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Kitob tavsiya olish
+        </a>
+        <a href="{% url 'books:list' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-100 text-blue-700 font-semibold rounded-xl hover:bg-blue-200 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
             </svg>
-            Kitoblarni ko'rish
+            Kitob bilan suhbat
         </a>
     </div>
-    {% endif %}
+
+    <div class="grid lg:grid-cols-3 gap-8">
+
+        <!-- Chat Sessions -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-blue-500">💬</span> Suhbatlar
+                    </h2>
+                    <span class="text-sm text-slate-500">{{ stats.total_chats }} ta</span>
+                </div>
+            </div>
+
+            {% if chat_sessions %}
+            <div class="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                {% for session in chat_sessions %}
+                <a href="{% url 'ai_chat:chat' session.book.slug %}" class="block p-4 hover:bg-slate-50 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
+                            {% if session.book.cover %}
+                            <img src="{{ session.book.cover.url }}" alt="{{ session.book.title }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                                <span class="text-white text-lg">📚</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-semibold text-slate-800 truncate text-sm">{{ session.book.title }}</h3>
+                            <p class="text-xs text-slate-500">{{ session.book.author.name }}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                                    {{ session.messages.count }} xabar
+                                </span>
+                                <span class="text-xs text-slate-400">{{ session.updated_at|timesince }} oldin</span>
+                            </div>
+                        </div>
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="p-8 text-center">
+                <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                </div>
+                <p class="text-slate-600 text-sm">Hali suhbat yo'q</p>
+                <a href="{% url 'books:list' %}" class="text-blue-600 text-sm font-medium hover:underline">Kitob tanlash →</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Comparisons -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 bg-gradient-to-r from-purple-50 to-pink-50">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-purple-500">⚖️</span> Taqqoslashlar
+                    </h2>
+                    <a href="{% url 'ai_chat:my_comparisons' %}" class="text-sm text-purple-600 hover:underline">Barchasi</a>
+                </div>
+            </div>
+
+            {% if comparisons %}
+            <div class="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                {% for comp in comparisons %}
+                <a href="{% url 'ai_chat:comparison_detail' comp.id %}" class="block p-4 hover:bg-slate-50 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="flex -space-x-2">
+                            <div class="w-10 h-12 rounded-lg overflow-hidden border-2 border-white bg-purple-100">
+                                {% if comp.book1.cover %}
+                                <img src="{{ comp.book1.cover.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                <div class="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-xs">📚</div>
+                                {% endif %}
+                            </div>
+                            <div class="w-10 h-12 rounded-lg overflow-hidden border-2 border-white bg-pink-100">
+                                {% if comp.book2.cover %}
+                                <img src="{{ comp.book2.cover.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                <div class="w-full h-full bg-gradient-to-br from-pink-400 to-rose-400 flex items-center justify-center text-white text-xs">📖</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-semibold text-slate-800 text-sm truncate">
+                                {{ comp.book1.title|truncatewords:2 }} vs {{ comp.book2.title|truncatewords:2 }}
+                            </h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
+                                    👁 {{ comp.views_count }}
+                                </span>
+                                <span class="text-xs text-slate-400">{{ comp.created_at|timesince }} oldin</span>
+                            </div>
+                        </div>
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="p-8 text-center">
+                <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-7 h-7 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <p class="text-slate-600 text-sm">Hali taqqoslash yo'q</p>
+                <a href="{% url 'ai_chat:compare' %}" class="text-purple-600 text-sm font-medium hover:underline">Taqqoslash yaratish →</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recommendations -->
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-cyan-50">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-emerald-500">💡</span> Tavsiyalar
+                    </h2>
+                    <span class="text-sm text-slate-500">{{ stats.total_recommendations }} ta</span>
+                </div>
+            </div>
+
+            {% if recommendations %}
+            <div class="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                {% for rec in recommendations %}
+                <div class="p-4 hover:bg-slate-50 transition">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <span class="text-white">💡</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-slate-800 text-sm line-clamp-2">{{ rec.request_text }}</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="text-xs text-slate-400">{{ rec.created_at|timesince }} oldin</span>
+                                <button onclick="toggleRecommendation({{ rec.id }})" class="text-xs text-emerald-600 hover:underline">
+                                    Ko'rish
+                                </button>
+                                <form method="POST" action="{% url 'ai_chat:delete_recommendation' rec.pk %}" class="inline" onsubmit="return confirm('O\'chirishni xohlaysizmi?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-xs text-red-500 hover:underline">O'chirish</button>
+                                </form>
+                            </div>
+                            <!-- Expandable content -->
+                            <div id="rec-{{ rec.id }}" class="hidden mt-3 p-3 bg-slate-50 rounded-xl text-sm max-h-60 overflow-y-auto">
+                                {{ rec.response_html|safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="p-8 text-center">
+                <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-7 h-7 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                </div>
+                <p class="text-slate-600 text-sm">Hali tavsiya yo'q</p>
+                <a href="{% url 'ai_chat:recommend' %}" class="text-emerald-600 text-sm font-medium hover:underline">Tavsiya olish →</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
+
+<script>
+function toggleRecommendation(id) {
+    const el = document.getElementById('rec-' + id);
+    el.classList.toggle('hidden');
+}
+</script>
 {% endblock %}

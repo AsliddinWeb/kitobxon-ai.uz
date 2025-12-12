@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ChatSession, Message, BookComparison
+from .models import ChatSession, Message, BookComparison, Recommendation
 
 
 class MessageInline(admin.TabularInline):
@@ -23,7 +23,6 @@ class MessageAdmin(admin.ModelAdmin):
 
     def short_content(self, obj):
         return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
-
     short_content.short_description = 'Xabar'
 
 
@@ -35,15 +34,15 @@ class BookComparisonAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     readonly_fields = ['id', 'created_at', 'updated_at', 'views_count']
 
-    fieldsets = (
-        ('Asosiy ma\'lumotlar', {
-            'fields': ('id', 'user', 'book1', 'book2')
-        }),
-        ('Taqqoslash matni', {
-            'fields': ('comparison_html',),
-            'classes': ('wide',)
-        }),
-        ('Statistika', {
-            'fields': ('views_count', 'created_at', 'updated_at')
-        }),
-    )
+
+@admin.register(Recommendation)
+class RecommendationAdmin(admin.ModelAdmin):
+    list_display = ['user', 'short_request', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__username', 'request_text']
+    date_hierarchy = 'created_at'
+    readonly_fields = ['created_at']
+
+    def short_request(self, obj):
+        return obj.request_text[:50] + '...' if len(obj.request_text) > 50 else obj.request_text
+    short_request.short_description = 'So\'rov'

@@ -12,6 +12,7 @@ urlpatterns = [
 
     # Recommend URL'lari
     path('recommend/', views.recommend_view, name='recommend'),
+    path('recommendation/<int:pk>/delete/', views.delete_recommendation_view, name='delete_recommendation'),
 
     # Chat URL'lari - aniq URL lar OLDIN
     path('history/', views.chat_history, name='history'),
