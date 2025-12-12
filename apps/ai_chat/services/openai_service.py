@@ -194,7 +194,6 @@ To'liq, batafsil, foydali content yoz. Kamida 3000 so'z bo'lsin."""
         except Exception as e:
             return f"Xatolik yuz berdi: {str(e)}"
 
-
     # Kitob taqqoslash metodi
     def compare_books(self, book1, book2) -> str:
         """Ikki kitobni AI bilan taqqoslash - HTML formatda"""
@@ -347,5 +346,142 @@ To'liq, batafsil, foydali content yoz. Kamida 3000 so'z bo'lsin."""
             </div>
             """
 
+    # Kitob tavsiya
+    def recommend_books(self, user_request: str) -> str:
+        """Foydalanuvchi so'roviga asosan kitob tavsiya qilish - HTML formatda"""
 
+        prompt = f"""Sen kitob ekspertisan. Foydalanuvchi quyidagi so'rovni yubordi:
 
+    "{user_request}"
+
+    📋 VAZIFA:
+    Foydalanuvchi so'roviga mos 5-7 ta kitob tavsiya qil. Dunyodagi eng yaxshi kitoblardan tavsiya ber.
+
+    Quyidagi HTML formatda javob yoz (O'zbek tilida, faqat HTML kod, hech qanday qo'shimcha matn yo'q):
+
+    <div class="space-y-6">
+        <!-- Kirish -->
+        <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-2xl p-6 border-2 border-emerald-200">
+            <h2 class="text-2xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <span>🎯</span> Sizning so'rovingiz
+            </h2>
+            <p class="text-slate-700 text-lg">"{user_request}" - asosida quyidagi kitoblarni tavsiya qilaman:</p>
+        </div>
+
+        <!-- Kitoblar ro'yxati -->
+        <div class="grid gap-4">
+            <!-- Kitob 1 -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                <div class="flex gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-black text-xl">1</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-800 mb-1">[Kitob nomi]</h3>
+                        <p class="text-emerald-600 font-semibold mb-2">✍️ [Muallif ismi]</p>
+                        <p class="text-slate-600 leading-relaxed">[Kitob haqida 2-3 gapda tavsif va nega o'qish kerak]</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kitob 2 -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                <div class="flex gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-black text-xl">2</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-800 mb-1">[Kitob nomi]</h3>
+                        <p class="text-blue-600 font-semibold mb-2">✍️ [Muallif ismi]</p>
+                        <p class="text-slate-600 leading-relaxed">[Kitob haqida 2-3 gapda tavsif va nega o'qish kerak]</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kitob 3 -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                <div class="flex gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-black text-xl">3</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-800 mb-1">[Kitob nomi]</h3>
+                        <p class="text-purple-600 font-semibold mb-2">✍️ [Muallif ismi]</p>
+                        <p class="text-slate-600 leading-relaxed">[Kitob haqida 2-3 gapda tavsif va nega o'qish kerak]</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kitob 4 -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                <div class="flex gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-black text-xl">4</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-800 mb-1">[Kitob nomi]</h3>
+                        <p class="text-amber-600 font-semibold mb-2">✍️ [Muallif ismi]</p>
+                        <p class="text-slate-600 leading-relaxed">[Kitob haqida 2-3 gapda tavsif va nega o'qish kerak]</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kitob 5 -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                <div class="flex gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-rose-400 to-red-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span class="text-white font-black text-xl">5</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-slate-800 mb-1">[Kitob nomi]</h3>
+                        <p class="text-rose-600 font-semibold mb-2">✍️ [Muallif ismi]</p>
+                        <p class="text-slate-600 leading-relaxed">[Kitob haqida 2-3 gapda tavsif va nega o'qish kerak]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Qaysi biridan boshlash kerak -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200">
+            <h2 class="text-2xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <span>⭐</span> Qaysi biridan boshlash kerak?
+            </h2>
+            <p class="text-slate-700 leading-relaxed text-lg">[Qaysi kitobdan boshlash kerakligi va sababi]</p>
+        </div>
+
+        <!-- Qo'shimcha maslahat -->
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border-2 border-slate-300">
+            <h2 class="text-2xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <span>💡</span> Maslahat
+            </h2>
+            <p class="text-slate-700 leading-relaxed">[Kitob o'qish bo'yicha qo'shimcha maslahat]</p>
+        </div>
+    </div>
+
+    MUHIM: Faqat HTML kod yoz, hech qanday qo'shimcha matn, tushuntirish yoki markdown yo'q. To'g'ridan-to'g'ri <div> dan boshla va </div> bilan tugat."""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=3000,
+                temperature=0.7
+            )
+
+            html_content = response.choices[0].message.content.strip()
+
+            # Markdown kod blokini olib tashlash
+            if html_content.startswith('```html'):
+                html_content = html_content.replace('```html', '').replace('```', '').strip()
+            elif html_content.startswith('```'):
+                html_content = html_content.replace('```', '').strip()
+
+            return html_content
+
+        except Exception as e:
+            return f"""
+            <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+                <h3 class="text-xl font-bold text-red-700 mb-2">❌ Xatolik</h3>
+                <p class="text-red-600">Tavsiya qilishda xatolik yuz berdi: {str(e)}</p>
+            </div>
+            """

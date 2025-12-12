@@ -150,3 +150,32 @@ class BookComparison(models.Model):
         )
 
         return new_comparison, True  # True = yangi yaratildi
+
+
+class Recommendation(models.Model):
+    """AI kitob tavsiyalari"""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='recommendations',
+        verbose_name='Foydalanuvchi'
+    )
+    request_text = models.TextField(
+        verbose_name='So\'rov matni'
+    )
+    response_html = models.TextField(
+        verbose_name='AI javobi'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Yaratilgan vaqt'
+    )
+
+    class Meta:
+        verbose_name = 'Tavsiya'
+        verbose_name_plural = 'Tavsiyalar'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.request_text[:50]}"

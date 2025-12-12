@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 from apps.books.models import Book
-from .models import ChatSession, Message, BookComparison
+from .models import ChatSession, Message, BookComparison, Recommendation
 from .services.openai_service import AIService
 
 from django.contrib import messages
@@ -194,3 +194,37 @@ def delete_comparison_view(request, comparison_id):
         return redirect('ai_chat:my_comparisons')
 
     return redirect('ai_chat:comparison_detail', comparison_id=comparison_id)
+
+
+@login_required
+def recommend_view(request):
+    """AI kitob tavsiya sahifasi"""
+
+    recommendation = None
+    user_request = None
+
+    # Foydalanuvchining oldingi tavsiyalari
+    past_recommendations = Recommendation.objects.filter(user=request.user)[:5]
+
+    if request.method == 'POST':
+        user_request = request.POST.get('user_request', '').strip()
+
+        if user_request:
+            ai_service = AIService()
+            response_html = ai_service.recommend_books(user_request)
+
+            # Bazaga saqlash
+            recommendation = Recommendation.objects.create(
+                user=request.user,
+                request_text=user_request,
+                response_html=response_html
+            )
+        else:
+            messages.error(request, "Iltimos, qanday kitob kerakligini yozing!")
+
+    context = {
+        'recommendation': recommendation,
+        'user_request': user_request,
+        'past_recommendations': past_recommendations,
+    }
+    return render(request, 'ai_chat/recommend.html', context)
